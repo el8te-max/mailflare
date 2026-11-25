@@ -248,6 +248,15 @@ Removing the last passkey (`DELETE /api/settings/passkeys/:id`) is allowed when 
 
 Terms combine with AND. Admins can check or rebuild the index with `GET` / `POST /api/admin/search-index`; triggers keep it current, so a rebuild is only needed after restoring a backup made before the index existed.
 
+### Reading one message or a conversation
+
+With an API key that has the `read` scope:
+
+- `GET /api/v1/messages/{id}` returns `{ message, body: { textBody, htmlBody }, attachments, ... }`, the same shape as the web reader's `GET /api/messages/{id}`.
+- `GET /api/v1/messages/{id}/thread` returns `{ threadId, messages }`, every message in that conversation oldest first, leaving out drafts, trash and other users' private drafts. As in the web reader, the bodies of `{id}` itself are `null` there; read them with the call above.
+
+Both answer 404 for a message the key's user cannot read, another user's private draft, or a mailbox outside the key's mailbox limit, and 401 without a valid key or the `read` scope.
+
 ## Real-time updates
 
 Mailflare uses a Durable Object WebSocket hub to notify connected users after an inbound message is stored. Mailbox owners, the domain administrator, and delegated users receive events for mailboxes they can access.
